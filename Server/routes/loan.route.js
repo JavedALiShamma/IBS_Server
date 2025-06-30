@@ -95,6 +95,7 @@ loanRouter.post("/addLoaner", async (req, res) => {
     // Step 3: Update User
     existingUser.hasLoan = true;
     existingUser.activeLoanId = newLoaner._id;
+    existingUser.loanAmount =amount;
     await existingUser.save({ session });
 
     // Step 4: Update Store
@@ -150,6 +151,9 @@ loanRouter.post("/addLoanInstallment" ,async(req,res)=>{
     
    if(!installment){
     loan.installmentsPaid.push({month , year ,amount , paidOn : new Date(), status})
+   }
+   else if(installment.amount >0){
+    return res.status(201).json({message :"उपयोगकर्ता पहले ही अपडेट हो चुका है"});
    }
    else{
     installment.status = status;
