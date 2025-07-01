@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const IBSSuperAdmin = require('../models/superAdmin.model');
+const IBSuser = require('../models/user.model');
 const MonthlyPaymentSchema = new mongoose.Schema({
   year: Number,
   month: {
@@ -12,6 +13,29 @@ const MonthlyPaymentSchema = new mongoose.Schema({
   amount: Number,
 
 });
+
+const monthLoanSchema = new mongoose.Schema({
+    year:Number,
+     month: {
+    type: String,
+    enum: [
+      "January", "February", "March", "April", "May", "June",
+      "July", "August", "September", "October", "November", "December"
+    ]
+  },
+  amountGiven :Number,
+  noOfLoaner:Number,
+  userTakenLoan: [{
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'IBSuser'
+    },
+    name: String,
+    loanAmount: Number
+  }]
+
+})
+
 const StoreSchema = new mongoose.Schema({
     userId: {
         type: mongoose.Schema.Types.ObjectId,
@@ -28,6 +52,7 @@ const StoreSchema = new mongoose.Schema({
         type: Number,
         required: true
     },
+    monthlyLoanGiven:[monthLoanSchema],
     standingBalance: {
         type: Number,
         default: 0

@@ -54,6 +54,7 @@ loanRouter.post("/addLoaner", async (req, res) => {
       startMonth,
       startYear,
       superAdminId,
+      monthlyLoanGiven
     } = req.body;
 
     const date = new Date();
@@ -82,6 +83,7 @@ loanRouter.post("/addLoaner", async (req, res) => {
       installmentAmount,
       startMonth,
       startYear,
+      monthlyLoanGiven
     });
     // Here we will calculate the installment 
     let totalInstallment = Math.ceil(amount/installmentAmount);
@@ -107,8 +109,49 @@ loanRouter.post("/addLoaner", async (req, res) => {
     if (store.standingBalance < newLoaner.amount) {
       throw new Error("खाते में पैसा कम है");
     }
+    // let monthStore =loan.monthlyLoanGiven.find((p)=>p.month && p.year==year);
+    
+    // if(!monthStore){
+    //   loan.monthlyLoanGiven.push({month , year , paidOn : new Date(),amountGiven :amount ,noOfLoaner :1 ,userTakenLoan :push(name)})
+    // }
+    // else if(monthStore.userTakenLoan.includes(name)){
+    //   return res.status(400).json({message:"पहले ही जोड़ा जा चुका है", success:false});
+    // }
 
-   
+    // const userTakenLoan = loan.monthlyLoanGiven.userTakenLoan.find((name))
+   let monthLoan = store.monthlyLoanGiven.find(item => item.month === month && item.year === year);
+   if (!monthLoan) {
+  // If not present, create a new entry
+  store.monthlyLoanGiven.push({
+    month,
+    year,
+    amountGiven: amount,
+    noOfLoaner: 1,
+    userTakenLoan: [{
+      userId,
+      name,
+      loanAmount: amount
+    }]
+  });
+  }else {
+  // Check if user already exists in this month's loan list
+  const alreadyExists = monthLoan.userTakenLoan.some(
+    entry => entry.userId.toString() === userId
+  );
+   if (alreadyExists) {
+    throw new Error("इस उपयोगकर्ता को पहले ही इस महीने के लोन में जोड़ा जा चुका है");
+  }
+  monthLoan.userTakenLoan.push({
+    userId,
+    name,
+    loanAmount: amount
+  });
+
+  // Update totals
+  monthLoan.amountGiven += amount;
+  monthLoan.noOfLoaner = monthLoan.userTakenLoan.length;
+}
+
 
     store.standingBalance -= newLoaner.amount;
 
@@ -169,7 +212,7 @@ loanRouter.post("/addLoanInstallment" ,async(req,res)=>{
     loanUser.loanAmountTaken =loan.amount;
     loanUser.hasLoan =false;
       loan.isCompleted =true;
-      loan.activeLoanId=null;
+      // loan.activeLoanId=null;
       await loanUser.save();
    }
    loan.installmentLeft -=1;
