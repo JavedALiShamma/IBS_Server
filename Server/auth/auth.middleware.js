@@ -30,7 +30,7 @@ const auth = async (req, res, next) => {
 const createToken = async (superAdmin) => {
     try {
         const token = jwt.sign({ _id: superAdmin._id }, process.env.JWT_SECRET, {
-            expiresIn: '1d'
+            expiresIn: '1year'
         });
         return token;
     } catch (err) {

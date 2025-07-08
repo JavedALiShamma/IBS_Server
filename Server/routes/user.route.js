@@ -42,6 +42,7 @@ userRouter.get("/getAllUsers",async(req,res)=>{
 // Here we wanted to get all the users of the particular admin
 userRouter.get("/getUsersByAdmin/:superAdmin",auth,async(req,res)=>{
     try{
+       console.log("WE ARE INDISE OF IT" , req.params);
         const superAdmin=req.params.superAdmin;
         // console.log("Super Admin is",superAdmin);
         // console.log(superAdmin._id);
