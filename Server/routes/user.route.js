@@ -8,14 +8,18 @@ const IBSstore =require('../models/Store.model');
 userRouter.post("/registerUser",auth,async(req, res)=>{
     try{
         let user = req.body;
-      
+        console.log("USER IN REGISTER USER IS",user);
         let existingUser= await IBSuser.findOne({mobile:user.mobile});
         console.log(existingUser);
+      
         if(existingUser){
              return res.status(400).json({ message: "User already exists", success: false });
         }
 
         existingUser= new IBSuser(user);
+          const password =user.mobile+`@123`;
+        console.log("Password is", password);
+        existingUser.password = password; // Set the default password
         await existingUser.save();
         return res.status(201).json({
              message: "User registration successful",
@@ -31,6 +35,7 @@ userRouter.post("/registerUser",auth,async(req, res)=>{
 })
 userRouter.get("/getAllUsers",async(req,res)=>{
     try{
+        // console.log("request in get all users",req.body);
         let users= await IBSuser.find({role:'user'});
         // console.log(users ,"users are");
         return res.status(200).json({users,success:true});
@@ -42,7 +47,7 @@ userRouter.get("/getAllUsers",async(req,res)=>{
 // Here we wanted to get all the users of the particular admin
 userRouter.get("/getUsersByAdmin/:superAdmin",auth,async(req,res)=>{
     try{
-       console.log("WE ARE INDISE OF IT" , req.params);
+      //  console.log("WE ARE INDISE OF IT" , req.params);
         const superAdmin=req.params.superAdmin;
         // console.log("Super Admin is",superAdmin);
         // console.log(superAdmin._id);
@@ -61,7 +66,15 @@ userRouter.put("/updateMonthlyFees/:id", auth, async (req, res) => {
   try {
     const { month, year, status, isAppliedLoan, superAdmin } = req.body;
     const id = req.params.id;
-
+    console.log("Request body:", req.body);
+   
+    // if(month === 'July'&& year == 2025){
+    //   return res.status(400).json({ message: "आपकी योजना अगस्त से शुरू होगी, तब तक प्रतीक्षा करें" });
+    // }
+    if(year < 2025 || (year == 2025 && month == 'July')){
+    // throw new Error("आपकी योजना अगस्त से शुरू होगी, तब तक प्रतीक्षा करें");
+      return res.status(400).json({message:"आपकी योजना अगस्त से शुरू होगी, तब तक प्रतीक्षा करें"})
+    }
     // Step 1: Find User
     const user = await IBSuser.findOne({ _id: id }).session(session);
     if (!user) {
