@@ -54,7 +54,7 @@ router.post("/loginSuperAdmin",async(req,res)=>{
         }
         
         const token =await createToken(user);
-        res.status(200).json({message:"Login Sucessful", user ,token:token});          
+       return res.status(200).json({message:"Login Sucessful", user ,token:token});          
     }
     catch(err){
         return res.status(500).json({error:err , success:false});

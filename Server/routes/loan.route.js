@@ -18,6 +18,36 @@ loanRouter.get("/getLoaners" ,auth ,async(req, res)=>{
         return res.status(500).json({message:`${err}`})
     }
 })
+loanRouter.get(("/getLoaner/:id"),async(req,res)=>{
+  try{
+    // we will get the loaner by id
+    const {id} = req.params;
+    const Loaner = await IBSloaner.findOne({_id:id});
+    if(!Loaner){
+      return res.status(404).json({message:"No user with this ID" , success:false})
+    }
+    return res.status(200).json({success:true , Loaner});
+  }
+  catch(err){
+     return res.status(500).json({message:`${err}`})
+  }
+})
+loanRouter.get(("/getThisMonthLoaner/:month/:year"), async(req,res)=>{
+  try{
+    const {month , year} =req.params;
+    // We will get the loaners for this month
+    const loaners = await IBSloaner.find({ startMonth: month, startYear: year });
+    if (!loaners || loaners.length === 0) {
+      return res.status(404).json({ message: "No loaners found for this month", success: false });
+    }
+    
+    return res.status(200).json({ message: "Loaners found for this month", loaners, success: true });
+
+  }
+  catch(err){
+     return res.status(500).json({message:`${err}`})
+  }
+})
 loanRouter.post("/getLoanerForAdmin" , async(req,res)=>{
   try{
       const userIds=req.body.userIds;
