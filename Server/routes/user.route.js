@@ -81,6 +81,31 @@ userRouter.get("/getUsersByAdmin/:superAdmin",auth,async(req,res)=>{
          return res.status(500).json({ message: `${err}` });
     }
 })
+userRouter.put("/changeUserPassword/:id",async(req,res)=>{
+  try{
+   
+    const {id} = req.params;
+    const {currentPassword , newPassword} = req.body;
+ 
+    const user = await IBSuser.findOne({_id:id});
+  
+    if(!user){
+      return res.status(404).json({mesage:"User not found"});
+    }
+    console.log(user.password ,"and the",currentPassword);
+    const isMatch = user.password == currentPassword;
+    if(!isMatch){
+      return res.status(400).json({message:"Current password is incorrect"});
+    }
+    console.log("isMatch is ",isMatch);
+    user.password = newPassword;
+    await user.save();
+    return res.status(201).json({message:"Password changed successfully", success:true});
+  }
+  catch(err){
+    return res.status(500).json({ message: `${err}` });
+  }
+})
 userRouter.put("/updateMonthlyFees/:id", auth, async (req, res) => {
   const session = await mongoose.startSession();
   session.startTransaction();
@@ -93,10 +118,10 @@ userRouter.put("/updateMonthlyFees/:id", auth, async (req, res) => {
     // if(month === 'July'&& year == 2025){
     //   return res.status(400).json({ message: "आपकी योजना अगस्त से शुरू होगी, तब तक प्रतीक्षा करें" });
     // }
-    if(year < 2025 || (year == 2025 && month == 'July')){
-    // throw new Error("आपकी योजना अगस्त से शुरू होगी, तब तक प्रतीक्षा करें");
-      return res.status(400).json({message:"आपकी योजना अगस्त से शुरू होगी, तब तक प्रतीक्षा करें"})
-    }
+    // if(year < 2025 || (year == 2025 && month == 'July')){
+    // // throw new Error("आपकी योजना अगस्त से शुरू होगी, तब तक प्रतीक्षा करें");
+    //   return res.status(400).json({message:"आपकी योजना अगस्त से शुरू होगी, तब तक प्रतीक्षा करें"})
+    // }
     // Step 1: Find User
     const user = await IBSuser.findOne({ _id: id }).session(session);
     if (!user) {

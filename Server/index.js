@@ -15,6 +15,7 @@ const userRouter= require('./routes/user.route');
 const loanRouter=require('./routes/loan.route');
 const storeRouter =require('./routes/store.route');
 const adminRouter = require('./routes/admin.route');
+const QuranHadeesRouter = require("./routes/QuranHadees.route");
 app.get("/",(req,res)=>{
     res.send("Hello from the server again");
 });
@@ -23,6 +24,7 @@ app.use('/register',userRouter);
 app.use('/register',loanRouter);
 app.use('/register',storeRouter);
 app.use('/register',adminRouter);
+app.use('/register',QuranHadeesRouter);
 
 // Connect to MongoDB
 ConnectDB();
