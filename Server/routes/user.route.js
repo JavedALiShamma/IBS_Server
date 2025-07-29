@@ -115,13 +115,12 @@ userRouter.put("/updateMonthlyFees/:id", auth, async (req, res) => {
     const id = req.params.id;
     console.log("Request body:", req.body);
    
-    // if(month === 'July'&& year == 2025){
-    //   return res.status(400).json({ message: "आपकी योजना अगस्त से शुरू होगी, तब तक प्रतीक्षा करें" });
-    // }
-    // if(year < 2025 || (year == 2025 && month == 'July')){
-    // // throw new Error("आपकी योजना अगस्त से शुरू होगी, तब तक प्रतीक्षा करें");
-    //   return res.status(400).json({message:"आपकी योजना अगस्त से शुरू होगी, तब तक प्रतीक्षा करें"})
-    // }
+   
+    
+    if(year < 2025 ){
+    // throw new Error("आपकी योजना अगस्त से शुरू होगी, तब तक प्रतीक्षा करें");
+      return res.status(400).json({message:"आपकी योजना 2025 के अगस्त महीने में शुरू हुई है, आप पिछले महीने की प्रविष्टि नहीं जोड़ सकते"})
+    }
     // Step 1: Find User
     const user = await IBSuser.findOne({ _id: id }).session(session);
     if (!user) {
@@ -153,6 +152,15 @@ userRouter.put("/updateMonthlyFees/:id", auth, async (req, res) => {
       payment.isAppliedLoan = isAppliedLoan;
     }
     user.totalMonthlypayment +=amount;
+    // HERE WE WILL IMPLEMENT CIBIL SCORE OF THE USER 
+    const currentDate = new Date();
+    const date = currentDate.getDate();
+    if(date > 5 && date<= 15){
+        user.cibilScore=cibilScore-5 
+    }
+    else{
+      user.cibilScore+=2;
+    }
     await user.save({ session });
 
     // Step 4: Update Store
