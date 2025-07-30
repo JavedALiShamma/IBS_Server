@@ -113,11 +113,7 @@ userRouter.put("/updateMonthlyFees/:id", auth, async (req, res) => {
   try {
     const { month, year, status, isAppliedLoan, superAdmin } = req.body;
     const id = req.params.id;
-    console.log("Request body:", req.body);
-   
-   
-    
-    if(year < 2025 ){
+    if(year < 2025 || (year == 2025 && month =='July') ){
     // throw new Error("आपकी योजना अगस्त से शुरू होगी, तब तक प्रतीक्षा करें");
       return res.status(400).json({message:"आपकी योजना 2025 के अगस्त महीने में शुरू हुई है, आप पिछले महीने की प्रविष्टि नहीं जोड़ सकते"})
     }
