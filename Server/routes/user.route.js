@@ -9,13 +9,13 @@ const IBSstore =require('../models/Store.model');
 userRouter.post("/registerUser",auth,async(req, res)=>{
     try{
         let user = req.body;
-        return res.status(400).json({message:"100 Users are added with this scheme wait for another scheme"});
+        // return res.status(400).json({message:"100 Users are added with this scheme wait for another scheme"});
         let existingUser= await IBSuser.findOne({mobile:user.mobile});
         console.log(existingUser);
         
-        if(existingUser){
-             return res.status(400).json({ message: "User already exists", success: false });
-        }
+        // if(existingUser){
+        //      return res.status(400).json({ message: "User already exists", success: false });
+        // }
 
         existingUser= new IBSuser(user);
           const password =user.mobile+`@123`;
@@ -152,7 +152,7 @@ userRouter.put("/updateMonthlyFees/:id", auth, async (req, res) => {
     const currentDate = new Date();
     const date = currentDate.getDate();
     if(date > 5 && date<= 15){
-        user.cibilScore=cibilScore-5 
+        user.cibilScore=user.cibilScore-5 
     }
     else{
       user.cibilScore+=2;
