@@ -9,7 +9,7 @@ const IBSstore =require('../models/Store.model');
 userRouter.post("/registerUser",auth,async(req, res)=>{
     try{
         let user = req.body;
-        // return res.status(400).json({message:"100 Users are added with this scheme wait for another scheme"});
+        return res.status(400).json({message:"100 Users are added with this scheme wait for another scheme"});
         let existingUser= await IBSuser.findOne({mobile:user.mobile});
         console.log(existingUser);
         
