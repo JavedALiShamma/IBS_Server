@@ -220,7 +220,7 @@ loanRouter.post("/addLoanInstallment" ,async(req,res)=>{
   }
   // Here we will update loan.installmentsPaid 
 
-   let installment =loan.installmentsPaid.find((p)=>p.month && p.year==year);
+   let installment =loan.installmentsPaid.find((p)=>p.month == month && p.year==year);
     
    if(!installment){
     loan.installmentsPaid.push({month , year ,amount , paidOn : new Date(), status})
