@@ -42,22 +42,8 @@ const punchIn = async (req, res) => {
       {
        allowedMunicipalityIds.push(employee.extraCharge.extraMunicipalityId);
       }
-      // const municipality = employee.municipalityId;
 
-      // const isInside = await Municipality.findOne({
-      //   _id: municipality._id,
-      //   location: {
-      //     $near: {
-      //       $geometry: {
-      //         type: "Point",
-      //         coordinates: [longitude, latitude],
-      //       },
-      //       $maxDistance: municipality.radiusInMeters || 500,
-      //     },
-      //   },
-      // });
-      /// handling for the extra charge
-      console.log(allowedMunicipalityIds , "Allowed muicipality ids are");
+
         const isInside = await Municipality.findOne({
           _id: { $in: allowedMunicipalityIds },
           location: {
@@ -372,5 +358,45 @@ const getMonthlyAttendance = async (req, res) => {
     });
   }
 };
+/// Get REMOTE Attendanc count 
 
-module.exports = { punchIn , punchOut , getTodayAttendance , getMonthlyAttendance };
+const getRemoteAttendanceStats = async (req, res) => {
+  try {
+    const employeeId = req.user._id;
+
+    // 📅 Get current month range (IST-safe if you want later)
+    const startOfMonth = new Date();
+    startOfMonth.setDate(1);
+    startOfMonth.setHours(0, 0, 0, 0);
+
+    const endOfMonth = new Date(startOfMonth);
+    endOfMonth.setMonth(endOfMonth.getMonth() + 1);
+
+    // 🔢 Count remote attendances for this employee
+    const monthlyRemoteCount = await Attendance.countDocuments({
+      employeeId,
+      remarks: "REMOTE", // or attendanceMode: "REMOTE"
+      createdAt: { $gte: startOfMonth, $lt: endOfMonth },
+    });
+
+    // // 🔢 (Optional) Total lifetime remote attendance
+    // const totalRemoteCount = await Attendance.countDocuments({
+    //   employeeId,
+      // remarks: "REMOTE",
+    // });
+   
+    return res.status(200).json({
+      success: true,
+      month: startOfMonth.getMonth() + 1,
+      year: startOfMonth.getFullYear(),
+      monthlyRemoteCount,
+    });
+  } catch (error) {
+    console.error("Remote attendance stats error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch remote attendance stats",
+    });
+  }
+};
+module.exports = { punchIn , punchOut , getTodayAttendance , getMonthlyAttendance , getRemoteAttendanceStats };

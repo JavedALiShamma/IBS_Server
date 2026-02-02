@@ -14,9 +14,9 @@ module.exports = async (req, res, next) => {
 
     const token = authHeader.split(" ")[1];
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    console.log("BEFORE");
+    
     const user = await Employee.findById(decoded.employeeId);
-    console.log("AFTER",user);
+ 
     if (!user) {
       return res.status(401).json({
         success: false,
