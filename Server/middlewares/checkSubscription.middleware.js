@@ -3,7 +3,7 @@ const Subscription = require("../models/subscription.model");
 module.exports = async (req, res, next) => {
   try {
     const subscription = await Subscription.findOne({
-      employeeId: req.user._id,
+      user: req.user._id,
       paymentStatus: "ACTIVE",
       endDate: { $gte: new Date() },
     }).populate("planId");
