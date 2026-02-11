@@ -114,7 +114,7 @@ const verifyPayment = async (req, res) => {
     const expiryDate = new Date();
     expiryDate.setDate(expiryDate.getDate() + 30);
 
-    await Subscription.findOneAndUpdate(
+    const subscription =await Subscription.findOneAndUpdate(
       { user: payment.user },
       {
         user: payment.user,
@@ -126,7 +126,9 @@ const verifyPayment = async (req, res) => {
       },
       { upsert: true, new: true }
     );
-
+    await Employee.findByIdAndUpdate(payment.user, {
+    subscriptionId: subscription._id,
+    });
     res.json({
       success: true,
       message: "Payment verified & subscription activated",
