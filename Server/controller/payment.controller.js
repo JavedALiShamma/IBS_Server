@@ -4,7 +4,7 @@ const Plan = require("../models/plan.model");
 const crypto = require("crypto");
 const Payment = require("../models/payment.model");
 const Subscription = require("../models/subscription.model");
-
+const Employee = require("../models/employee.model");
 
  const createOrder = async (req, res) => {
   try {
