@@ -73,12 +73,12 @@ const createSubscriptionForEmployee = async (req, res) => {
 const getSubscriptionStatus = async (req, res) => {
   try {
     const employeeId = req.user._id;
-
+    // console.log("Getting subscription status for employeeId:", employeeId);
     // 1️⃣ Find latest subscription (if multiple exist)
-    const subscription = await Subscription.findOne({ employeeId })
+    const subscription = await Subscription.findOne({ user: employeeId })
       .sort({ createdAt: -1 })
       .populate("planId");
-
+    // console.log("Fetched subscription:", subscription);
     // 2️⃣ No subscription
     if (!subscription) {
       return res.status(200).json({
