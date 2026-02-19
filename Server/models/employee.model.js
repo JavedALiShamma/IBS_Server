@@ -12,6 +12,10 @@ const employeeSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
+    ulbEmail:{
+      type: String,
+      lowercase: true,
+    },
     password: {
     type: String,
     required: true,
@@ -64,6 +68,7 @@ const employeeSchema = new mongoose.Schema(
     subscriptionId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Subscription",
+    default: null,
     }
 
   },

@@ -4,13 +4,13 @@ const checkSubscription = require("../middlewares/checkSubscription.middleware")
 const validatePunchIn = require("../middlewares/validatePunchIn.middleware");
 const checkEligibility = require("../middlewares/checkPunchEligibility.middleware");
 const checkAttendanceMode = require("../middlewares/checkAttendanceMode.middleware");
-
+const checkPunchInTime = require("../middlewares/checkPunchInTime.middleware");
 const { punchIn, punchOut, getTodayAttendance, getMonthlyAttendance, getRemoteAttendanceStats } = require('../controller/attendance.controller');
 
 const attendanceRouter = express.Router();
 // Here we need to add the time middleware at the last 
 //checkPunchInTime
-attendanceRouter.post("/punch-in", auth , checkEligibility, checkSubscription,validatePunchIn, checkAttendanceMode,punchIn);
+attendanceRouter.post("/punch-in", auth , checkEligibility, checkSubscription,validatePunchIn, checkPunchInTime,checkAttendanceMode,punchIn);
 attendanceRouter.post("/punch-out" ,auth ,punchOut);
 attendanceRouter.get("/today" , auth , getTodayAttendance);
 attendanceRouter.get("/monthlyAttendance" , auth , getMonthlyAttendance);
