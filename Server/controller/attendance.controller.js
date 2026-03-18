@@ -15,6 +15,7 @@ const {
 //   });
 const punchIn = async (req, res) => {
   try {
+    console.log("PunchIn request body:", req.body);
     const { latitude, longitude, selfieUrl } = req.body;
     const { attendanceMode } = req; // 👈 IMPORTANT
     const employeeId = req.user._id;
@@ -257,7 +258,7 @@ const getMonthlyAttendance = async (req, res) => {
     const employeeId = req.user._id;
     const month = parseInt(req.query.month);
     const year = parseInt(req.query.year);
-    console.log("respose is comming");
+    // console.log("respose is comming");
     if (!month || !year || month < 1 || month > 12) {
       return res.status(400).json({
         message: "Invalid month or year",
@@ -399,4 +400,165 @@ const getRemoteAttendanceStats = async (req, res) => {
     });
   }
 };
-module.exports = { punchIn , punchOut , getTodayAttendance , getMonthlyAttendance , getRemoteAttendanceStats };
+
+const getAllAttendance = async (req, res) => {
+  try {
+    const { date, startDate, endDate, employeeId } = req.query;
+
+    let filter = {};
+
+    // 1️⃣ Single Date
+    if (date) {
+      filter.date = date; // exact match
+    }
+
+    // 2️⃣ Date Range
+    if (startDate && endDate) {
+      filter.date = {
+        $gte: startDate,
+        $lte: endDate,
+      };
+    }
+
+    // 3️⃣ Specific Employee (optional)
+    if (employeeId) {
+      filter.employeeId = employeeId;
+    }
+
+    const attendance = await Attendance.find(filter)
+      .populate("employeeId", "name ulbcode")
+      .sort({ date: -1 });
+
+    return res.status(200).json({
+      total: attendance.length,
+      data: attendance,
+    });
+
+  } catch (error) {
+    console.error("Get attendance error:", error);
+    return res.status(500).json({
+      message: "Failed to fetch attendance",
+    });
+  }
+};
+const getFullAttendanceByDate = async (req, res) => {
+  try {
+    const { date } = req.query;
+
+    if (!date) {
+      return res.status(400).json({ message: "Date is required" });
+    }
+
+    // 1️⃣ Get all employees
+    const employees = await Employee.find().select("name ulbcode");
+
+    // 2️⃣ Get attendance of that date
+    const attendanceRecords = await Attendance.find({ date });
+
+    // 3️⃣ Create map of attendance
+    const attendanceMap = {};
+
+    attendanceRecords.forEach((record) => {
+      attendanceMap[record.employeeId.toString()] = record;
+    });
+
+    // 4️⃣ Merge employees with attendance
+    const result = employees.map((emp) => {
+      const record = attendanceMap[emp._id.toString()];
+
+      return {
+        employeeId: emp._id,
+        name: emp.name,
+        ulbcode: emp.ulbcode,
+        date: date,
+        status: record ? "Present" : "Absent",
+        punchInTime: record ? record.punchInTime : null,
+        punchOutTime: record ? record.punchOutTime : null,
+      };
+    });
+
+    return res.status(200).json({
+      totalEmployees: employees.length,
+      date,
+      data: result,
+    });
+
+  } catch (error) {
+    console.error("Full attendance error:", error);
+    return res.status(500).json({
+      message: "Failed to fetch full attendance",
+    });
+  }
+};
+const getFullAttendanceByRange = async (req, res) => {
+  try {
+    const { startDate, endDate } = req.query;
+
+    if (!startDate || !endDate) {
+      return res.status(400).json({
+        message: "startDate and endDate are required",
+      });
+    }
+
+    // 1️⃣ Get all employees
+    const employees = await Employee.find().select("name ulbcode");
+
+    // 2️⃣ Get attendance records within range
+    const attendanceRecords = await Attendance.find({
+      date: { $gte: startDate, $lte: endDate },
+    });
+
+    // 3️⃣ Create map (employeeId + date)
+    const attendanceMap = {};
+
+    attendanceRecords.forEach((record) => {
+      const key = `${record.employeeId}_${record.date}`;
+      attendanceMap[key] = record;
+    });
+
+    // 4️⃣ Generate date array between range
+    const dates = [];
+    let current = new Date(startDate);
+    const last = new Date(endDate);
+
+    while (current <= last) {
+      dates.push(current.toISOString().split("T")[0]);
+      current.setDate(current.getDate() + 1);
+    }
+
+    // 5️⃣ Build final result
+    const result = employees.map((emp) => {
+      const attendanceByDate = dates.map((date) => {
+        const key = `${emp._id}_${date}`;
+        const record = attendanceMap[key];
+
+        return {
+          date,
+          status: record ? "Present" : "Absent",
+          punchInTime: record ? record.punchInTime : null,
+          punchOutTime: record ? record.punchOutTime : null,
+        };
+      });
+
+      return {
+        employeeId: emp._id,
+        name: emp.name,
+        ulbcode: emp.ulbcode,
+        attendance: attendanceByDate,
+      };
+    });
+
+    return res.status(200).json({
+      totalEmployees: employees.length,
+      totalDays: dates.length,
+      data: result,
+    });
+
+  } catch (error) {
+    console.error("Range attendance error:", error);
+    return res.status(500).json({
+      message: "Failed to fetch full attendance range",
+    });
+  }
+};
+module.exports = { punchIn , punchOut , getTodayAttendance ,getFullAttendanceByRange ,getMonthlyAttendance , getRemoteAttendanceStats ,getFullAttendanceByDate, getAllAttendance };

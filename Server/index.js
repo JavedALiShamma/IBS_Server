@@ -23,6 +23,8 @@ const PlanRouter = require('./routes/plan.routes');
 const attendanceRouter = require('./routes/attendance.route');
 const SubscribeRouter = require('./routes/subscription.route');
 const paymentRouter = require('./routes/payment.route');
+const holidayRouter = require('./routes/holiday.route');
+const reportRouter = require('./routes/report.route');
 app.get("/",(req,res)=>{
     res.send("Hello from the server again");
 });
@@ -38,6 +40,9 @@ app.use('/markMeIn/plans',PlanRouter);
 app.use('/markMeIn/attendance', attendanceRouter);
 app.use("/markMeIn", SubscribeRouter);
 app.use("/markMeIn/payments", paymentRouter);
+app.use("/markMeIn/holidays", holidayRouter);
+app.use("/markMeIn/reports", reportRouter);
+
 // Connect to MongoDB
 ConnectDB();
 

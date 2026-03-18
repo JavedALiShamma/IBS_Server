@@ -5,7 +5,8 @@ const validatePunchIn = require("../middlewares/validatePunchIn.middleware");
 const checkEligibility = require("../middlewares/checkPunchEligibility.middleware");
 const checkAttendanceMode = require("../middlewares/checkAttendanceMode.middleware");
 const checkPunchInTime = require("../middlewares/checkPunchInTime.middleware");
-const { punchIn, punchOut, getTodayAttendance, getMonthlyAttendance, getRemoteAttendanceStats } = require('../controller/attendance.controller');
+
+const { punchIn, punchOut, getTodayAttendance, getMonthlyAttendance,getFullAttendanceByRange, getRemoteAttendanceStats , getAllAttendance , getFullAttendanceByDate } = require('../controller/attendance.controller');
 
 const attendanceRouter = express.Router();
 // Here we need to add the time middleware at the last 
@@ -15,4 +16,7 @@ attendanceRouter.post("/punch-out" ,auth ,punchOut);
 attendanceRouter.get("/today" , auth , getTodayAttendance);
 attendanceRouter.get("/monthlyAttendance" , auth , getMonthlyAttendance);
 attendanceRouter.get("/remote-stats" , auth , getRemoteAttendanceStats);
+attendanceRouter.get("/admin/allAttendance" , getAllAttendance);
+attendanceRouter.get("/admin/getAllAttendanceByDate"  , getFullAttendanceByDate);
+attendanceRouter.get("/admin/getAllAttendanceByRange"  , getFullAttendanceByRange);
 module.exports=attendanceRouter;

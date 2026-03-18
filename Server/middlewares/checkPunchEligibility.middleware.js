@@ -11,6 +11,7 @@ module.exports = async (req, res, next) => {
 
   // Govt holiday
   const holiday = await GovtHoliday.findOne({ date: today });
+  // console.log("Holiday check for date:", today, "Found holiday:", holiday);
   if (holiday) {
     return res.status(403).json({
       success: false,
